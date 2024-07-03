@@ -1,10 +1,10 @@
 import express from 'express'
-import { getFilteredData, getProperty_type, searchByname } from '../controllers/AirBnbController.js'
-
+import { getPropertyType, searchProperty} from '../controllers/AirbnbContr.js'
+import {getFilteredData} from '../controllers/AirBnbControllers.js'
 const router = express.Router()
 
-router.get('/propertyType_list', getProperty_type)
-router.get('/searchType', searchByname)
+router.get('/propertyType_list', getPropertyType)
+router.get('/searchType', searchProperty)
 router.get('/getFilteredData', getFilteredData)
 
 
