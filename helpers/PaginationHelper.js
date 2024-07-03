@@ -1,8 +1,4 @@
 class paginationHelper {
-	async PerformQuery(model, query) {
-		const data = await model.aggregate(query)
-		return data
-	}
 
 	GenerateSearchQuery(fieldArray, searchValue) {
 		const query = {
@@ -20,45 +16,6 @@ class paginationHelper {
 		return query
 	}
 
-	GenerateDateFilterQuery(queries, fieldName) {
-		const query = {
-			$match: {
-				[fieldName]: {
-					$gte: new Date(queries.startDate),
-					$lte: new Date(queries.endDate),
-				},
-			},
-		}
-		return query
-	}
-
-	GenerateLookup(
-		from,
-		localField,
-		foreignField,
-		asString,
-		pipeline = [],
-		preserveNullAndEmptyArrays = true
-	) {
-		const obj = [
-			{
-				$lookup: {
-					from,
-					localField,
-					foreignField,
-					pipeline,
-					as: asString,
-				},
-			},
-			{
-				$unwind: {
-					path: `$${asString}`,
-					preserveNullAndEmptyArrays,
-				},
-			},
-		]
-		return obj
-	}
 
 	GenerateMatchQuery(matchCondition) {
 		const matchObj = {
@@ -136,26 +93,6 @@ class paginationHelper {
 		return query
 	}
 
-	GenerateArrayForPopulate(pathArray, selectArray) {
-		if (!pathArray || !selectArray || pathArray.length !== selectArray.length) {
-			throw new Error(App.Messages.Error.PopulateError())
-		}
-		const populateArray = []
-		for (let i = 0; i < pathArray.length; i++) {
-			const path = pathArray[i]
-			const select = selectArray[i]
-			const populateObj = { path, select }
-			populateArray.push(populateObj)
-		}
-		return populateArray
-	}
-
-	GenerateLimit(limit) {
-		const query = {
-			$limit: limit,
-		}
-		return query
-	}
 }
 
 export default new paginationHelper
