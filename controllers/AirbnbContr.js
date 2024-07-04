@@ -64,17 +64,7 @@ export const searchProperty = async (req, res) => {
 			return res.status(400).json({ error: 'Dates cannot be in the past.' })
 		}
 
-		dateDifference = endDate.diff(startDate, 'days')
-
-		query.push(
-			paginationHelper.GenerateMatchQuery({
-				['availability.availability_365']: { $gte: dateDifference },
-				min_nights: { $lte: dateDifference },
-				max_nights: { $gte: dateDifference },
-			})
-		)
-	}
-	if (accommodates) {
+		if (accommodates) {
 		query.push(
 			paginationHelper.GenerateMatchQuery({
 				accommodates: { $lte: parseInt(accommodates) },
@@ -82,13 +72,28 @@ export const searchProperty = async (req, res) => {
 		)
 	}
 
-	query = [
+		dateDifference = endDate.diff(startDate, 'days')
+		console.log(dateDifference)
+
+		query = [
 		paginationHelper.GenerateAddFieldQuery({
 			max_nights: { $toInt: '$maximum_nights' },
 			min_nights: { $toInt: '$minimum_nights' },
 		}),
 		paginationHelper.GenerateMatchQuery({ property_type }),
 	]
+
+		query.push(
+			paginationHelper.GenerateMatchQuery({
+				['availability.availability_365']: { $lte: dateDifference },
+				min_nights: { $eq: dateDifference },
+				max_nights: { $gte: dateDifference },
+			})
+		)
+	}
+	
+
+	
 	if (search) {
 		query.push(paginationHelper.GenerateSearchQuery(['name'], search))
 	}
@@ -114,7 +119,9 @@ export const searchProperty = async (req, res) => {
 		sortObj: { name: 1 },
 	}
 	const response = await paginationHelper.GenerateQueryWithPagination(options, Airbnb)
-	return res.status(200).json({ ...response })
+	return response.items === 0 
+    ? res.status(200).json({ message: "Back to the previous index, no more items are found" }) 
+    : res.status(200).json({ ...response });
   } catch (error) {
     console.log( error )
     res.status(500).json({error: error.message})
